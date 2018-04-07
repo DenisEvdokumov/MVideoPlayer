@@ -2,6 +2,7 @@ package com.example.videoplayer;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -23,6 +24,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
@@ -40,14 +42,14 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class VideoPlayerActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "VideoPlayerActivity";
 
     SimpleExoPlayerView playerView;
     SimpleExoPlayer exoPlayer;
     // private ComponentListener componentListener;
-    private ExoPlayer.EventListener eventListener = new ExoPlayer.EventListener() {
+    private Player.EventListener eventListener = new Player.EventListener() {
         @Override
         public void onTimelineChanged(Timeline timeline, Object manifest) {
             Log.i(TAG, "onTimelineChanged");
@@ -122,62 +124,38 @@ public class MainActivity extends AppCompatActivity {
     private long playbackPosition;
     private int currentWindow;
     private boolean playWhenReady = true;
+    ArrayList videos;
+    String s;
 
 
-    RecyclerView recyclerView;
-    VideoAdapter videoAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        Intent i = getIntent();
+        Bundle b = i.getExtras();
+        videos = b.getParcelableArrayList("videolist");
+        int position = b.getInt("position",0);
+        s = videos.get(position).toString();
+
         checkUserPermission();
-        ArrayList<File> video = findVideos(Environment.getExternalStorageDirectory());
-        //video.addAll(findVideos(Environment.get))
-        videoAdapter = new VideoAdapter(this,video);
-        recyclerView.setAdapter(videoAdapter);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
-                linearLayoutManager.getOrientation());
-        recyclerView.setLayoutManager(linearLayoutManager);
-        recyclerView.addItemDecoration(dividerItemDecoration);
+//        ArrayList<File> video = findVideos(Environment.getExternalStorageDirectory());
+//        video.addAll(findVideos(Environment.get))
+
+
         playerView = findViewById(R.id.video_view);
+        //TODO
 
-        videoAdapter.setOnItemClickListener(new VideoAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(Button b, View view, String s, int position) {
+        if (Util.SDK_INT > 23) {
 
-                    Log.i(TAG,b.getText().toString());
-                    recyclerView.setVisibility(View.GONE);
-                    playerView.setVisibility(View.VISIBLE);
-                    prepareExoPlayerFromFileUri(Uri.fromFile(new File(s)));
+            prepareExoPlayerFromFileUri(Uri.fromFile(new File(s)));
 
-            }
-        });
-//
-//        if (Util.SDK_INT > 23) {
-//            prepareExoPlayerFromFileUri(Uri.fromFile(new File("/storage/emulated/0/.a/1.mp4")));
-//
-//        }
-
-    }
-
-    private ArrayList<File> findVideos(File root) {
-        ArrayList<File> res = new ArrayList<File>();
-        File[] files = root.listFiles();
-        for (File singleFile : files){
-            if(singleFile.isDirectory()&& singleFile.isHidden()){
-                res.addAll(findVideos(singleFile));
-            }else {
-                //TODO all format
-                if(singleFile.getName().endsWith(".mp4")||singleFile.getName().endsWith(".3gp")){
-                    res.add(singleFile);
-                }
-            }
         }
-        return res;
+
     }
+
+
 
     private void prepareExoPlayerFromFileUri(Uri uri) {
         exoPlayer = ExoPlayerFactory.newSimpleInstance(this, new DefaultTrackSelector(), new DefaultLoadControl());
@@ -210,15 +188,16 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-//        hideSystemUi();
-//        if ((Util.SDK_INT <= 23 || exoPlayer == null)) {
-//            prepareExoPlayerFromFileUri(Uri.fromFile(new File("/storage/emulated/0/.a/1.mp4")));
-//
-//        }
-//    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        hideSystemUi();
+        if ((Util.SDK_INT <= 23 || exoPlayer == null)&& s != null) {
+
+            prepareExoPlayerFromFileUri(Uri.fromFile(new File(s)));
+
+        }
+    }
 
     @SuppressLint("InlinedApi")
     private void hideSystemUi() {
