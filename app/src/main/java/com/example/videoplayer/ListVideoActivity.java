@@ -37,7 +37,6 @@ public class ListVideoActivity extends AppCompatActivity {
         findVideos(Environment.getExternalStorageDirectory());
         findVideos(Environment.getDataDirectory());
 
-
         recyclerView = findViewById(R.id.recyclerView);
         videoAdapter = new VideoAdapter(this, listVideosPath);
         recyclerView.setAdapter(videoAdapter);
@@ -57,6 +56,8 @@ public class ListVideoActivity extends AppCompatActivity {
                         .putExtra("listVideosPath", listVideosPath));
             }
         });
+
+
     }
 
 
@@ -78,6 +79,7 @@ public class ListVideoActivity extends AppCompatActivity {
                 }
             }
         }
+
     }
 
 
@@ -86,7 +88,9 @@ public class ListVideoActivity extends AppCompatActivity {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 123);
-                }
+
+            }
+
         }
     }
 
@@ -95,7 +99,9 @@ public class ListVideoActivity extends AppCompatActivity {
         switch (requestCode){
             case 123:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
-
+                    findVideos(Environment.getExternalStorageDirectory());
+                    findVideos(Environment.getDataDirectory());
+                    recyclerView.setAdapter(videoAdapter);
                 }else{
                     Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
                     checkUserPermission();
