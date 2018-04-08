@@ -3,6 +3,7 @@ package com.example.videoplayer;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -29,6 +30,7 @@ import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.util.Util;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class VideoPlayerActivity extends AppCompatActivity {
@@ -68,6 +70,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
 
 
         if (Util.SDK_INT > 23) {
+            setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             CreateExoPlayer();
         }
 
@@ -92,22 +95,25 @@ public class VideoPlayerActivity extends AppCompatActivity {
     }
 
     private MediaSource prepareExoPlayerFromFileUri(Uri uri) {
-        exoPlayer = ExoPlayerFactory.newSimpleInstance(this, new DefaultTrackSelector(), new DefaultLoadControl());
 
-        DataSpec dataSpec = new DataSpec(uri);
-        final FileDataSource fileDataSource = new FileDataSource();
-        try {
-            fileDataSource.open(dataSpec);
-        } catch (FileDataSource.FileDataSourceException e) {
-            e.printStackTrace();
-        }
+            exoPlayer = ExoPlayerFactory.newSimpleInstance(this,new DefaultTrackSelector());
 
-        DataSource.Factory factory = new DataSource.Factory() {
-            @Override
-            public DataSource createDataSource() {
-                return fileDataSource;
+
+            DataSpec dataSpec = new DataSpec(uri);
+            final FileDataSource fileDataSource = new FileDataSource();
+            try {
+                fileDataSource.open(dataSpec);
+            } catch (FileDataSource.FileDataSourceException e) {
+                e.printStackTrace();
             }
-        };
+
+            DataSource.Factory factory = new DataSource.Factory() {
+                @Override
+                public DataSource createDataSource() {
+                    return fileDataSource;
+                }
+            };
+
 
         return new ExtractorMediaSource(fileDataSource.getUri(),
                         factory, new DefaultExtractorsFactory(), null, null);
