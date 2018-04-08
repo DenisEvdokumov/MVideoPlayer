@@ -83,6 +83,8 @@ public class VideoPlayerActivity extends AppCompatActivity {
         checkUserPermission();
         playerView = findViewById(R.id.video_view);
         playerView.setPlayer(exoPlayer);
+
+        Log.i(TAG,exoPlayer.toString());
         exoPlayer.seekTo(playbackPosition);
 
         exoPlayer.prepare(playList);
@@ -164,7 +166,6 @@ public class VideoPlayerActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle outState) {
         outState.putInt(VIDEO_ID, currentWindow+ videoID);
         outState.putLong(STATE_RESUME_POSITION, playbackPosition);
-        Log.i(TAG,currentWindow + "  " + playbackPosition);
         super.onSaveInstanceState(outState);
     }
 
@@ -192,7 +193,8 @@ public class VideoPlayerActivity extends AppCompatActivity {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
 
                 }else{
-                    Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "\n" +
+                            "Please allow permission to continue working ", Toast.LENGTH_SHORT).show();
                     checkUserPermission();
                 }
                 break;
