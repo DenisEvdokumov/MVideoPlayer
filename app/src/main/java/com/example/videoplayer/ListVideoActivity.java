@@ -12,16 +12,12 @@ import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
 
 public class ListVideoActivity extends AppCompatActivity {
 
@@ -29,7 +25,8 @@ public class ListVideoActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
     VideoAdapter videoAdapter;
-    ArrayList<File> videoList = new ArrayList<File>();
+    ArrayList<File> listVideosPath = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,10 +35,11 @@ public class ListVideoActivity extends AppCompatActivity {
         checkUserPermission();
 
         findVideos(Environment.getExternalStorageDirectory());
+        findVideos(Environment.getDataDirectory());
 
 
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        videoAdapter = new VideoAdapter(this,videoList);
+        recyclerView = findViewById(R.id.recyclerView);
+        videoAdapter = new VideoAdapter(this, listVideosPath);
         recyclerView.setAdapter(videoAdapter);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
@@ -55,8 +53,8 @@ public class ListVideoActivity extends AppCompatActivity {
             public void onItemClick(Button b, View view, String s, int position) {
 
                 startActivity(new Intent(getApplicationContext(),VideoPlayerActivity.class)
-                        .putExtra("position",position)
-                        .putExtra("videolist",videoList));
+                        .putExtra("videoID",position)
+                        .putExtra("listVideosPath", listVideosPath));
             }
         });
     }
@@ -72,9 +70,10 @@ public class ListVideoActivity extends AppCompatActivity {
                 if (singleFile.isDirectory() || singleFile.isHidden()) {
                     findVideos(singleFile);
                 } else {
-                    //TODO all format
-                    if (singleFile.getName().endsWith(".mp4") || singleFile.getName().endsWith(".3gp")) {
-                        videoList.add(singleFile);
+                    if (singleFile.getName().endsWith(".mp4") ||
+                            singleFile.getName().endsWith(".3gp") ||
+                            singleFile.getName().endsWith(".m4a")) {
+                        listVideosPath.add(singleFile);
                     }
                 }
             }
@@ -87,8 +86,7 @@ public class ListVideoActivity extends AppCompatActivity {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 123);
-                return;
-            }
+                }
         }
     }
 

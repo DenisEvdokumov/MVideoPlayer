@@ -2,5 +2,6 @@
     <string name="app_name">VideoPlayer</string>
     <string name="media_url_mp3">http://storage.googleapis.com/exoplayer-test-media-0/play.mp3</string>
     <string name="media_url_mp4">http://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_320x180.mp4</string>
+    <string name="play">Play</string>
 
 </resources>
